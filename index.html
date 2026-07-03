@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Gestão Freelance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0F;
+    --surface: #12121C;
+    --surface2: #1A1A2E;
+    --border: #2A2A3E;
+    --green: #00FF87;
+    --green-dim: rgba(0,255,135,0.12);
+    --red: #FF4D6D;
+    --red-dim: rgba(255,77,109,0.12);
+    --orange: #FF8C42;
+    --orange-dim: rgba(255,140,66,0.12);
+    --blue: #4D9FFF;
+    --blue-dim: rgba(77,159,255,0.12);
+    --text: #E8E8F0;
+    --text-muted: #6B6B85;
+    --text-dim: #9999B0;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .brand {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+
+  .sidebar-logo .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .sidebar-section {
+    padding: 20px 12px 8px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+
+  .month-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .month-btn:hover { background: var(--surface2); color: var(--text); }
+  .month-btn.active { background: var(--green-dim); color: var(--green); font-weight: 700; }
+
+  .month-btn .badge {
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 20px;
+    color: var(--text-muted);
+  }
+
+  .month-btn.active .badge { background: rgba(0,255,135,0.2); color: var(--green); }
+
+  .add-month-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: calc(100% - 24px);
+    margin: 4px 12px;
+    background: none;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .add-month-btn:hover { border-color: var(--green); color: var(--green); }
+
+  .sidebar-nav {
+    padding: 20px 12px 8px;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: var(--blue-dim); color: var(--blue); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topbar-title {
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .topbar-actions { display: flex; gap: 10px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: var(--green); color: #000; }
+  .btn-primary:hover { background: #00e87a; }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--text-muted); }
+  .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid transparent; }
+  .btn-danger:hover { border-color: var(--red); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  .content { padding: 24px 28px; overflow-y: auto; flex: 1; }
+
+  /* METRIC CARDS */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .metric-card.green::before { background: var(--green); }
+  .metric-card.red::before { background: var(--red); }
+  .metric-card.orange::before { background: var(--orange); }
+  .metric-card.blue::before { background: var(--blue); }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .metric-value {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .metric-value.green { color: var(--green); }
+  .metric-value.red { color: var(--red); }
+  .metric-value.orange { color: var(--orange); }
+  .metric-value.blue { color: var(--blue); }
+
+  .metric-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* SECTION */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 13px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .tag-edicao { background: var(--blue-dim); color: var(--blue); }
+  .tag-gestao { background: var(--orange-dim); color: var(--orange); }
+  .tag-pago { background: var(--green-dim); color: var(--green); }
+  .tag-parcial { background: var(--orange-dim); color: var(--orange); }
+  .tag-pendente { background: var(--red-dim); color: var(--red); }
+
+  .progress-bar {
+    width: 80px;
+    height: 5px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  .progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: 10px;
+    background: var(--green);
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .progress-fill.partial { background: var(--orange); }
+  .progress-fill.low { background: var(--red); }
+
+  .action-btns { display: flex; gap: 6px; }
+
+  .btn-stepper {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .btn-stepper:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .btn-stepper:active { transform: scale(0.92); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 480px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus, .form-select:focus { border-color: var(--green); }
+  .form-select option { background: var(--surface2); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .form-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; padding: 4px; background: var(--bg); border-radius: 8px; }
+  .tab-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--surface2); color: var(--text); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* EDITOR TABLE */
+  .editor-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .editor-row:last-child { border-bottom: none; }
+  .editor-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800;
+    color: var(--blue);
+    flex-shrink: 0;
+  }
+  .editor-name { font-size: 13px; font-weight: 600; flex: 1; }
+  .editor-amount { font-size: 16px; font-weight: 800; color: var(--red); }
+
+  /* TREND MINI */
+  .trend-positive { color: var(--green); font-size: 11px; font-weight: 700; }
+  .trend-negative { color: var(--red); font-size: 11px; font-weight: 700; }
+
+  /* HIGHLIGHT ROW */
+  .highlight-row td { background: rgba(0,255,135,0.03); }
+  
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* TOOLTIP-LIKE pending amount */
+  .pending-amount { color: var(--orange); font-weight: 700; }
+
+  @media (max-width: 900px) {
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .sidebar { display: none; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">FreelanceOS</div>
+    <div class="sub">Gestão de contratos</div>
+  </div>
+
+  <div class="sidebar-nav" style="margin-top:0; border-top:none; padding-top:16px">
+    <button class="nav-btn active" onclick="switchView('dashboard', this)">
+      <span>📊</span> Dashboard
+    </button>
+    <button class="nav-btn" onclick="switchView('resumo', this)">
+      <span>🗂️</span> Resumo Geral
+    </button>
+    <button class="nav-btn" onclick="switchView('editores', this)">
+      <span>👥</span> Editores
+    </button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Meses</div>
+    <div id="monthList"></div>
+    <button class="add-month-btn" onclick="openAddMonthModal()">
+      + Novo mês
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">—</div>
+    <div class="topbar-actions">
+      <input type="file" id="importFileInput" accept="application/json" style="display:none" onchange="importData(event)" />
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFileInput').click()">⬆ Importar JSON</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportData()">⬇ Exportar JSON</button>
+      <button class="btn btn-primary" onclick="openAddClientModal()">+ Contrato</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD VIEW -->
+    <div class="view active" id="view-dashboard">
+      <div class="metrics-grid">
+        <div class="metric-card green">
+          <div class="metric-label">Receita Total</div>
+          <div class="metric-value green" id="m-receita">€0</div>
+          <div class="metric-sub" id="m-receita-sub">—</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-label">Despesas Editores</div>
+          <div class="metric-value red" id="m-despesas">€0</div>
+          <div class="metric-sub" id="m-despesas-sub">—</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="metric-label">Lucro Líquido</div>
+          <div class="metric-value blue" id="m-lucro">€0</div>
+          <div class="metric-sub" id="m-lucro-sub">margem —%</div>
+        </div>
+        <div class="metric-card orange">
+          <div class="metric-label">Por Receber</div>
+          <div class="metric-value orange" id="m-pendente">€0</div>
+          <div class="metric-sub" id="m-pendente-sub">—</div>
+        </div>
+      </div>
+
+      <!-- EVOLUÇÃO MENSAL -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Evolução Mensal</span>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="setChartMetric('receita', this)">Receita</button>
+            <button class="tab-btn" onclick="setChartMetric('lucro', this)">Lucro</button>
+            <button class="tab-btn" onclick="setChartMetric('despesas', this)">Despesas</button>
+          </div>
+        </div>
+        <div style="padding:20px; height:260px;">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- TRABALHO POR ENTREGAR -->
+      <div class="section" id="pendingWorkSection" style="display:none; border-color: var(--orange)">
+        <div class="section-header">
+          <span class="section-title">⚠️ Trabalho Por Entregar</span>
+          <span style="font-size:11px;color:var(--text-muted)">Clientes que já pagaram mas ainda têm vídeos por fazer</span>
+        </div>
+        <div id="pendingWorkList"></div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Contratos do Mês</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <select class="form-select" id="sortClientsSelect" onchange="setClientsSort(this.value)" style="width:auto;padding:6px 10px;font-size:12px">
+              <option value="adicionado">Ordenar: Adicionado</option>
+              <option value="estado">Ordenar: Estado</option>
+            </select>
+            <div class="tabs">
+              <button class="tab-btn active" onclick="filterClients('todos', this)">Todos</button>
+              <button class="tab-btn" onclick="filterClients('edicao', this)">Edição</button>
+              <button class="tab-btn" onclick="filterClients('gestao', this)">Gestão</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Valor Total</th>
+                <th>Progresso</th>
+                <th>Pago</th>
+                <th>Em Dívida</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="clientsTable">
+              <tr><td colspan="8"><div class="empty-state"><div class="icon">📋</div><p>Sem contratos. Adiciona o primeiro.</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMO GERAL VIEW -->
+    <div class="view" id="view-resumo">
+      <div class="metrics-grid">
+        <div class="metric-card green">
+          <div class="metric-label">Receita Total (desde sempre)</div>
+          <div class="metric-value green" id="rg-receita">€0</div>
+          <div class="metric-sub" id="rg-receita-sub">—</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-label">Despesas Editores (desde sempre)</div>
+          <div class="metric-value red" id="rg-despesas">€0</div>
+          <div class="metric-sub" id="rg-despesas-sub">—</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="metric-label">Lucro Líquido (desde sempre)</div>
+          <div class="metric-value blue" id="rg-lucro">€0</div>
+          <div class="metric-sub" id="rg-lucro-sub">margem —%</div>
+        </div>
+        <div class="metric-card orange">
+          <div class="metric-label">Por Receber (total)</div>
+          <div class="metric-value orange" id="rg-pendente">€0</div>
+          <div class="metric-sub" id="rg-pendente-sub">—</div>
+        </div>
+      </div>
+
+      <!-- CLIENTES CONSOLIDADOS -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Todos os Contratos, Consolidados</span>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="filterResumoClients('todos', this)">Todos</button>
+            <button class="tab-btn" onclick="filterResumoClients('edicao', this)">Edição</button>
+            <button class="tab-btn" onclick="filterResumoClients('gestao', this)">Gestão</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Valor Total</th>
+                <th>Vídeos Entregues (total)</th>
+                <th>Pago (total)</th>
+                <th>Em Dívida</th>
+                <th>Meses Ativos</th>
+              </tr>
+            </thead>
+            <tbody id="resumoClientsTable">
+              <tr><td colspan="7"><div class="empty-state"><div class="icon">🗂️</div><p>Sem contratos ainda.</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITORES VIEW -->
+    <div class="view" id="view-editores">
+      <div class="section" style="margin-bottom:20px">
+        <div class="section-header">
+          <span class="section-title">Editores</span>
+          <button class="btn btn-ghost btn-sm" onclick="openAddEditorModal()">+ Editor</button>
+        </div>
+        <div id="editoresList">
+          <div class="empty-state"><div class="icon">👥</div><p>Sem editores. Adiciona um editor.</p></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Pagamentos a Editores — <span id="editorMonthLabel">—</span></span>
+          <button class="btn btn-ghost btn-sm" onclick="openAddEditorPaymentModal()">+ Registo</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Editor</th>
+                <th>Projeto/Descrição</th>
+                <th>Vídeos</th>
+                <th>Valor</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="editorPaymentsTable">
+              <tr><td colspan="6"><div class="empty-state"><div class="icon">💸</div><p>Sem registos.</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL: ADICIONAR MÊS -->
+<div class="modal-overlay" id="modal-addMonth">
+  <div class="modal">
+    <div class="modal-title">Novo Mês</div>
+    <div class="form-group">
+      <label class="form-label">Mês e Ano</label>
+      <input type="month" class="form-input" id="in-month" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-addMonth')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addMonth()">Criar Mês</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADICIONAR CLIENTE -->
+<div class="modal-overlay" id="modal-addClient">
+  <div class="modal">
+    <div class="modal-title" id="modal-client-title">Novo Contrato</div>
+    <div class="form-group">
+      <label class="form-label">Nome do Cliente</label>
+      <input type="text" class="form-input" id="in-clientName" placeholder="ex: João Silva" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de Serviço</label>
+      <select class="form-select" id="in-serviceType" onchange="toggleServiceFields()">
+        <option value="edicao">Edição de Vídeos</option>
+        <option value="gestao">Gestão de Redes Sociais</option>
+      </select>
+    </div>
+
+    <!-- EDIÇÃO FIELDS -->
+    <div id="fields-edicao">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Total de Vídeos Contratados</label>
+          <input type="number" class="form-input" id="in-totalVideos" placeholder="ex: 50" min="1" oninput="calcEditPrice()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço por Vídeo (€)</label>
+          <input type="number" class="form-input" id="in-pricePerVideo" placeholder="ex: 6" min="0" step="0.5" oninput="calcEditPrice()" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Vídeos Entregues</label>
+        <input type="number" class="form-input" id="in-deliveredVideos" placeholder="ex: 30" min="0" oninput="calcEditPrice()" />
+        <div class="form-hint" id="edit-calc-hint">—</div>
+      </div>
+    </div>
+
+    <!-- GESTÃO FIELDS -->
+    <div id="fields-gestao" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Valor Mensal (€)</label>
+        <input type="number" class="form-input" id="in-monthlyFee" placeholder="ex: 1000" min="0" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Valor Pago pelo Cliente (€)</label>
+        <input type="number" class="form-input" id="in-paid" placeholder="0" min="0" step="0.01" oninput="calcEditPrice()" />
+        <div class="form-hint" id="paid-baseline-hint"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select class="form-select" id="in-status">
+          <option value="pendente">Pendente</option>
+          <option value="parcial">Parcialmente Pago</option>
+          <option value="pago">Pago</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notas (opcional)</label>
+      <input type="text" class="form-input" id="in-notes" placeholder="ex: paga a 5 de cada mês" />
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-addClient')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveClient()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITOR -->
+<div class="modal-overlay" id="modal-addEditor">
+  <div class="modal">
+    <div class="modal-title" id="modal-editor-title">Novo Editor</div>
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input type="text" class="form-input" id="in-editorName" placeholder="ex: Gonçalo" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Projeto / Cliente</label>
+      <select class="form-select" id="in-editorProject" onchange="autoFillEditorFromProject()">
+        <option value="">— Sem projeto associado —</option>
+      </select>
+      <div class="form-hint">Vídeos e preço são preenchidos automaticamente a partir do contrato deste cliente, mas podes ajustar.</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Vídeos (pack)</label>
+        <input type="number" class="form-input" id="in-editorVideos" placeholder="ex: 30" min="0" oninput="calcEditorRate()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Preço (€)</label>
+        <input type="number" class="form-input" id="in-editorPrice" placeholder="ex: 100" min="0" step="0.5" oninput="calcEditorRate()" />
+      </div>
+    </div>
+    <div class="form-hint" id="editor-rate-hint">—</div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-addEditor')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditor()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PAGAMENTO EDITOR -->
+<div class="modal-overlay" id="modal-addEditorPayment">
+  <div class="modal">
+    <div class="modal-title" id="modal-payment-title">Registo de Pagamento a Editor</div>
+    <div class="form-group">
+      <label class="form-label">Editor</label>
+      <select class="form-select" id="in-epEditor" onchange="autoFillPaymentFromEditor()"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Projeto / Descrição</label>
+      <input type="text" class="form-input" id="in-epDesc" placeholder="ex: Edição vídeos cliente X" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nº de Vídeos</label>
+        <input type="number" class="form-input" id="in-epVideos" min="0" placeholder="0" oninput="calcEditorPay()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor Total (€)</label>
+        <input type="number" class="form-input" id="in-epAmount" min="0" step="0.01" placeholder="0" />
+      </div>
+    </div>
+    <div class="form-hint" id="editor-payment-hint">—</div>
+    <div class="form-group">
+      <label class="form-label">Estado</label>
+      <select class="form-select" id="in-epStatus">
+        <option value="pendente">Por Pagar</option>
+        <option value="pago">Pago</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-addEditorPayment')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditorPayment()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MOVER CLIENTE PARA O PRÓXIMO MÊS -->
+<div class="modal-overlay" id="modal-moveClient">
+  <div class="modal">
+    <div class="modal-title">Continuar Contrato no Mês Seguinte</div>
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.6">
+      Vais continuar o contrato de <strong id="moveClientName" style="color:var(--text)"></strong> em
+      <strong id="moveClientTarget" style="color:var(--green)"></strong>.
+    </p>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-top:10px">
+      O histórico de vídeos entregues e valor pago será mantido (a barra de progresso e os packs continuam a contar normalmente), mas a Receita desse novo mês só vai contar o dinheiro que entrar a partir de agora — para não duplicares receita já registada em <span id="moveClientOrigin" style="color:var(--text-dim)"></span>.
+    </p>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-top:10px">
+      O contrato mantém-se também no mês atual, sem alterações.
+    </p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-moveClient')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmMoveClient()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let state = {
+  months: [],       // [{id, label, clients:[], editors:[], editorPayments:[]}]
+  activeMonthId: null,
+  editingClientId: null,
+  editingEditorId: null,
+  editingPaymentId: null,
+  currentFilter: 'todos',
+  clientsSort: 'adicionado',
+  chartMetric: 'receita'
+};
+
+// ─── PERSISTENCE ────────────────────────────────────────────────────────────
+function save() { localStorage.setItem('freelance_os_v3', JSON.stringify(state)); }
+
+function load() {
+  const raw = localStorage.getItem('freelance_os_v3');
+  if (raw) {
+    try { state = JSON.parse(raw); } catch(e) {}
+  }
+  if (state.months.length === 0) seedDemo();
+  if (state.activeMonthId === null && state.months.length > 0)
+    state.activeMonthId = state.months[state.months.length - 1].id;
+  migrateAddJulyClients();
+  migrateEditorsPerMonth();
+}
+
+function migrateEditorsPerMonth() {
+  // Garante que todos os meses têm o seu próprio array de editores.
+  // Se existir um state.editors antigo (global), move-o para o mês ativo, uma única vez.
+  state.months.forEach(m => {
+    if (!Array.isArray(m.editors)) m.editors = [];
+  });
+  if (Array.isArray(state.editors) && state.editors.length > 0) {
+    const m = activeMonth() || state.months[0];
+    if (m) {
+      state.editors.forEach(e => {
+        if (!m.editors.find(x => x.id === e.id)) m.editors.push(e);
+      });
+    }
+    delete state.editors;
+    save();
+  }
+}
+
+function migrateAddJulyClients() {
+  if (localStorage.getItem('freelance_os_migration_v5')) return;
+
+  const monthId = 'month_2026_06';
+  let m = state.months.find(mo => mo.id === monthId);
+  if (!m) {
+    // mês ainda não existe, cria-o
+    m = { id: monthId, label: 'Junho 2026', clients: [], editors: [], editorPayments: [] };
+    state.months.push(m);
+  }
+
+  const newClients = [
+    { id: uid(), name: 'Martim', type: 'edicao', totalVideos: 60, pricePerVideo: 9.17, deliveredVideos: 0, totalValue: 550, paid: 550, status: 'parcial', notes: 'Pack 60 Short Form = 550€ · pago adiantado, vídeos ainda por entregar' },
+    { id: uid(), name: 'Martim - Long Form', type: 'edicao', totalVideos: 10, pricePerVideo: 25, deliveredVideos: 0, totalValue: 250, paid: 250, status: 'parcial', notes: 'Pack 10 Long Form = 250€ · pago adiantado, vídeos ainda por entregar' },
+    { id: uid(), name: 'Barbara Mel', type: 'edicao', totalVideos: 75, pricePerVideo: 10, deliveredVideos: 0, totalValue: 750, paid: 750, status: 'parcial', notes: 'Pack 75 vídeos = 750€ · 250€ repassados ao Jorge (parte líquida: 500€) · pago adiantado, vídeos ainda por entregar' },
+    { id: uid(), name: 'Os Pedradas', type: 'edicao', totalVideos: null, pricePerVideo: 30, deliveredVideos: 14, totalValue: 420, paid: 360, status: 'parcial', notes: 'Long Form a 30€/vídeo (sem pack, serviço avulso) · 14 feitos, 12 pagos · 2 vídeos em dívida' },
+  ];
+
+  // Substitui clientes existentes com o mesmo nome (corrige dados antigos com bug), ou adiciona se não existir
+  newClients.forEach(nc => {
+    const idx = m.clients.findIndex(c => c.name === nc.name);
+    if (idx >= 0) {
+      nc.id = m.clients[idx].id; // mantém o id original
+      m.clients[idx] = nc;
+    } else {
+      m.clients.push(nc);
+    }
+  });
+
+  localStorage.setItem('freelance_os_migration_v5', 'done');
+  save();
+}
+
+function seedDemo() {
+  const monthId = 'month_2026_06';
+  const luisMartinsId = uid();
+  state.months = [{
+    id: monthId,
+    label: 'Junho 2026',
+    clients: [
+      { id: uid(), name: 'Duel Boxing', type: 'edicao', totalVideos: 100, pricePerVideo: 7, deliveredVideos: 200, totalValue: 700, paid: 1400, status: 'pago', notes: 'Pack 100 vídeos = 700€' },
+      { id: uid(), name: 'Tuga100Limites', type: 'edicao', totalVideos: 60, pricePerVideo: 5.83, deliveredVideos: 33, totalValue: 350, paid: 191, status: 'parcial', notes: 'Pack 60 vídeos = 350€' },
+      { id: uid(), name: 'Tuga100Limites - Jorge', type: 'gestao', totalVideos: null, pricePerVideo: null, deliveredVideos: null, totalValue: 150, paid: 150, status: 'pago', notes: '' },
+      { id: uid(), name: 'Diogo Videografo', type: 'gestao', totalVideos: null, pricePerVideo: null, deliveredVideos: null, totalValue: 300, paid: 300, status: 'pago', notes: '' },
+      { id: uid(), name: 'N1Tips', type: 'edicao', totalVideos: 50, pricePerVideo: 6, deliveredVideos: 192, deliveredPaidVideos: 167, totalValue: 300, paid: 1002, status: 'parcial', notes: 'Pack 50 vídeos = 300€ · 25 vídeos por pagar' },
+      { id: uid(), name: 'Carros', type: 'edicao', totalVideos: 30, pricePerVideo: 6.67, deliveredVideos: 12, deliveredPaidVideos: 30, totalValue: 200, paid: 200, status: 'pago', notes: 'Pack 30 vídeos = 200€ · cliente pagou mais vídeos do que os feitos' },
+      { id: luisMartinsId, name: 'Luís Martins', type: 'edicao', totalVideos: 90, pricePerVideo: 7.78, deliveredVideos: 37, deliveredPaidVideos: 0, totalValue: 700, paid: 0, status: 'pendente', notes: 'Pack 90 vídeos = 700€ · 287.49€ em dívida' },
+      { id: uid(), name: 'Mochila', type: 'edicao', totalVideos: 20, pricePerVideo: 7.25, deliveredVideos: 5, deliveredPaidVideos: 20, totalValue: 145, paid: 145, status: 'pago', notes: 'Pack 20 vídeos = 145€ · cliente pagou mais vídeos do que os feitos' },
+    ],
+    editors: [
+      { id: uid(), name: 'Gonçalo', clientId: luisMartinsId, videos: 30, price: 120, rate: 4 }
+    ],
+    editorPayments: []
+  }];
+  state.activeMonthId = monthId;
+  save();
+}
+
+// ─── UTILS ──────────────────────────────────────────────────────────────────
+function uid() { return 'id_' + Math.random().toString(36).slice(2, 9); }
+function fmt(n) { return '€' + Number(n).toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+function pct(a, b) { return b > 0 ? Math.round(a / b * 100) : 0; }
+
+function activeMonth() {
+  return state.months.find(m => m.id === state.activeMonthId);
+}
+
+// ─── MONTH MANAGEMENT ───────────────────────────────────────────────────────
+function renderMonthList() {
+  const el = document.getElementById('monthList');
+  el.innerHTML = '';
+  state.months.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (m.id === state.activeMonthId ? ' active' : '');
+    const count = m.clients.length;
+    btn.innerHTML = `${m.label} <span class="badge">${count}</span>`;
+    btn.onclick = () => setActiveMonth(m.id);
+    el.appendChild(btn);
+  });
+}
+
+function setActiveMonth(id) {
+  state.activeMonthId = id;
+  save();
+  render();
+}
+
+function openAddMonthModal() {
+  const d = new Date();
+  document.getElementById('in-month').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  openModal('modal-addMonth');
+}
+
+function addMonth() {
+  const val = document.getElementById('in-month').value;
+  if (!val) return;
+  const [y, m] = val.split('-');
+  const months_pt = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const label = `${months_pt[parseInt(m)-1]} ${y}`;
+  const id = 'month_' + val.replace('-','_');
+  if (state.months.find(mo => mo.id === id)) {
+    alert('Este mês já existe.'); return;
+  }
+  state.months.push({ id, label, clients: [], editors: [], editorPayments: [] });
+  state.activeMonthId = id;
+  save();
+  closeModal('modal-addMonth');
+  render();
+}
+
+// ─── CLIENTS ─────────────────────────────────────────────────────────────────
+function openAddClientModal(clientId = null) {
+  state.editingClientId = clientId;
+  document.getElementById('modal-client-title').textContent = clientId ? 'Editar Contrato' : 'Novo Contrato';
+  
+  if (clientId) {
+    const m = activeMonth();
+    const c = m.clients.find(x => x.id === clientId);
+    document.getElementById('in-clientName').value = c.name;
+    document.getElementById('in-serviceType').value = c.type;
+    document.getElementById('in-paid').value = c.paid;
+    document.getElementById('in-status').value = c.status;
+    document.getElementById('in-notes').value = c.notes || '';
+    const baselineHint = document.getElementById('paid-baseline-hint');
+    if (c.baselinePaid !== undefined && c.baselinePaid !== null) {
+      baselineHint.textContent = `Escreve apenas o valor recebido neste mês. Total acumulado de meses anteriores: ${fmt(c.baselinePaid)}.`;
+    } else {
+      baselineHint.textContent = '';
+    }
+    if (c.type === 'edicao') {
+      document.getElementById('in-totalVideos').value = c.totalVideos;
+      document.getElementById('in-pricePerVideo').value = c.pricePerVideo;
+      document.getElementById('in-deliveredVideos').value = c.deliveredVideos;
+    } else {
+      document.getElementById('in-monthlyFee').value = c.totalValue;
+    }
+    toggleServiceFields();
+  } else {
+    document.getElementById('in-clientName').value = '';
+    document.getElementById('in-serviceType').value = 'edicao';
+    document.getElementById('in-totalVideos').value = '';
+    document.getElementById('in-pricePerVideo').value = '';
+    document.getElementById('in-deliveredVideos').value = '';
+    document.getElementById('in-monthlyFee').value = '';
+    document.getElementById('in-paid').value = '';
+    document.getElementById('in-status').value = 'pendente';
+    document.getElementById('in-notes').value = '';
+    document.getElementById('edit-calc-hint').textContent = '—';
+    document.getElementById('paid-baseline-hint').textContent = '';
+    toggleServiceFields();
+  }
+  openModal('modal-addClient');
+}
+
+function toggleServiceFields() {
+  const type = document.getElementById('in-serviceType').value;
+  document.getElementById('fields-edicao').style.display = type === 'edicao' ? '' : 'none';
+  document.getElementById('fields-gestao').style.display = type === 'gestao' ? '' : 'none';
+}
+
+function calcEditPrice() {
+  const total = parseInt(document.getElementById('in-totalVideos').value) || 0;
+  const price = parseFloat(document.getElementById('in-pricePerVideo').value) || 0;
+  const delivered = parseInt(document.getElementById('in-deliveredVideos').value) || 0;
+  const paid = parseFloat(document.getElementById('in-paid').value) || 0;
+  const totalVal = total * price;
+  const hint = document.getElementById('edit-calc-hint');
+  if (totalVal > 0 && total > 0) {
+    const packsCompleted = Math.floor(delivered / total);
+    const remainder = delivered % total;
+    const expectedVal = packsCompleted * totalVal;
+    let packsNote = packsCompleted > 1 ? ` · ${packsCompleted}x packs completos` : '';
+    if (remainder > 0) packsNote += ` (+${remainder} v. em pack novo)`;
+    hint.textContent = `Valor esperado: ${fmt(expectedVal)}${packsNote} · Pendente: ${fmt(expectedVal - paid)}`;
+  } else {
+    hint.textContent = '—';
+  }
+}
+
+function saveClient() {
+  const name = document.getElementById('in-clientName').value.trim();
+  const type = document.getElementById('in-serviceType').value;
+  const paid = parseFloat(document.getElementById('in-paid').value) || 0;
+  const status = document.getElementById('in-status').value;
+  const notes = document.getElementById('in-notes').value.trim();
+  if (!name) { alert('Insere o nome do cliente.'); return; }
+
+  let totalValue = 0, totalVideos = null, pricePerVideo = null, deliveredVideos = null;
+
+  if (type === 'edicao') {
+    totalVideos = parseInt(document.getElementById('in-totalVideos').value) || 0;
+    pricePerVideo = parseFloat(document.getElementById('in-pricePerVideo').value) || 0;
+    deliveredVideos = parseInt(document.getElementById('in-deliveredVideos').value) || 0;
+    totalValue = totalVideos * pricePerVideo;
+  } else {
+    totalValue = parseFloat(document.getElementById('in-monthlyFee').value) || 0;
+  }
+
+  const m = activeMonth();
+  if (state.editingClientId) {
+    const idx = m.clients.findIndex(x => x.id === state.editingClientId);
+    const existing = m.clients[idx];
+    const updated = { id: state.editingClientId, name, type, totalVideos, pricePerVideo, deliveredVideos, totalValue, paid, status, notes };
+    // Mantém o baseline (histórico de continuação de mês anterior), se existir
+    if (existing.baselineVideos !== undefined) updated.baselineVideos = existing.baselineVideos;
+    if (existing.baselinePaid !== undefined) updated.baselinePaid = existing.baselinePaid;
+    m.clients[idx] = updated;
+  } else {
+    m.clients.push({ id: uid(), name, type, totalVideos, pricePerVideo, deliveredVideos, totalValue, paid, status, notes });
+  }
+  save();
+  closeModal('modal-addClient');
+  render();
+}
+
+function markClientAsPago(clientId) {
+  const m = activeMonth();
+  const c = m.clients.find(x => x.id === clientId);
+  if (!c) return;
+  c.status = 'pago';
+  save();
+  renderClientsTable();
+  renderMetrics();
+  renderChart();
+  renderPendingWork();
+}
+
+function adjustDelivered(clientId, delta) {
+  const m = activeMonth();
+  const c = m.clients.find(x => x.id === clientId);
+  if (!c) return;
+  const newValue = (c.deliveredVideos || 0) + delta;
+  c.deliveredVideos = Math.max(0, newValue);
+  save();
+  renderClientsTable();
+  renderMetrics();
+  renderChart();
+  renderPendingWork();
+}
+
+function deleteClient(id) {
+  if (!confirm('Remover este contrato?')) return;
+  const m = activeMonth();
+  m.clients = m.clients.filter(c => c.id !== id);
+  save();
+  render();
+}
+
+// ─── MOVER CLIENTE PARA OUTRO MÊS ────────────────────────────────────────────
+function monthsSorted() {
+  return [...state.months].sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function nextMonthAfter(monthId) {
+  // Calcula o id do mês seguinte (YYYY_MM + 1), independentemente de já existir ou não
+  const parts = monthId.replace('month_', '').split('_');
+  let y = parseInt(parts[0]), mo = parseInt(parts[1]);
+  mo += 1;
+  if (mo > 12) { mo = 1; y += 1; }
+  const id = `month_${y}_${String(mo).padStart(2,'0')}`;
+  const months_pt = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const label = `${months_pt[mo-1]} ${y}`;
+  return { id, label };
+}
+
+function openMoveClientModal(clientId) {
+  const m = activeMonth();
+  const c = m.clients.find(x => x.id === clientId);
+  if (!c) return;
+  const { id: nextId, label: nextLabel } = nextMonthAfter(m.id);
+
+  document.getElementById('moveClientName').textContent = c.name;
+  document.getElementById('moveClientTarget').textContent = nextLabel;
+  document.getElementById('moveClientOrigin').textContent = m.label;
+  document.getElementById('modal-moveClient').dataset.clientId = clientId;
+  document.getElementById('modal-moveClient').dataset.targetMonthId = nextId;
+  document.getElementById('modal-moveClient').dataset.targetMonthLabel = nextLabel;
+  openModal('modal-moveClient');
+}
+
+function confirmMoveClient() {
+  const modal = document.getElementById('modal-moveClient');
+  const clientId = modal.dataset.clientId;
+  const targetMonthId = modal.dataset.targetMonthId;
+  const targetMonthLabel = modal.dataset.targetMonthLabel;
+
+  const m = activeMonth();
+  const c = m.clients.find(x => x.id === clientId);
+  if (!c) return;
+
+  let targetMonth = state.months.find(mo => mo.id === targetMonthId);
+  if (!targetMonth) {
+    targetMonth = { id: targetMonthId, label: targetMonthLabel, clients: [], editors: [], editorPayments: [] };
+    state.months.push(targetMonth);
+  }
+
+  // Cria a cópia no novo mês: vídeos mantêm o acumulado (continuam a contar a partir do total atual),
+  // mas o campo "Pago" deste novo mês começa a 0 — assim só escreves o valor novo recebido em Julho,
+  // sem teres de somar manualmente ao que já tinha sido pago antes
+  const copy = JSON.parse(JSON.stringify(c));
+  copy.id = uid();
+  copy.baselineVideos = c.deliveredVideos || 0;
+  copy.baselinePaid = c.paid || 0;
+  copy.paid = 0;
+  copy.notes = (c.notes ? c.notes + ' · ' : '') + `continuação de ${m.label}`;
+
+  targetMonth.clients.push(copy);
+  save();
+  closeModal('modal-moveClient');
+  render();
+  alert(`${c.name} copiado para ${targetMonthLabel}. Podes mudar de mês na barra lateral para continuares a atualizá-lo lá.`);
+}
+
+function filterClients(type, btn) {
+  state.currentFilter = type;
+  const tabsContainer = btn.closest('.tabs');
+  tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderClientsTable();
+}
+
+function setClientsSort(value) {
+  state.clientsSort = value;
+  save();
+  renderClientsTable();
+}
+
+// ─── EDITORS ─────────────────────────────────────────────────────────────────
+function openAddEditorModal() {
+  state.editingEditorId = null;
+  document.getElementById('modal-editor-title').textContent = 'Novo Editor';
+  document.getElementById('in-editorName').value = '';
+  document.getElementById('in-editorVideos').value = '';
+  document.getElementById('in-editorPrice').value = '';
+  document.getElementById('editor-rate-hint').textContent = '—';
+  populateEditorProjectOptions();
+  document.getElementById('in-editorProject').value = '';
+  openModal('modal-addEditor');
+}
+
+function populateEditorProjectOptions(selectedClientId) {
+  const m = activeMonth();
+  const sel = document.getElementById('in-editorProject');
+  const options = ['<option value="">— Sem projeto associado —</option>'];
+  (m?.clients || []).forEach(c => {
+    options.push(`<option value="${c.id}">${c.name}</option>`);
+  });
+  sel.innerHTML = options.join('');
+  if (selectedClientId) sel.value = selectedClientId;
+}
+
+function autoFillEditorFromProject() {
+  const clientId = document.getElementById('in-editorProject').value;
+  if (!clientId) return;
+  const m = activeMonth();
+  const c = m.clients.find(x => x.id === clientId);
+  if (!c) return;
+  // Preenche automaticamente vídeos (pack) e preço a partir do contrato do cliente, mas o utilizador pode ajustar
+  if (c.type === 'edicao' && c.totalVideos > 0) {
+    document.getElementById('in-editorVideos').value = c.totalVideos;
+    document.getElementById('in-editorPrice').value = c.totalValue;
+  }
+  calcEditorRate();
+}
+
+function calcEditorRate() {
+  const videos = parseInt(document.getElementById('in-editorVideos').value) || 0;
+  const price = parseFloat(document.getElementById('in-editorPrice').value) || 0;
+  const hint = document.getElementById('editor-rate-hint');
+  if (videos > 0 && price > 0) {
+    hint.textContent = `Preço por vídeo: ${fmt(price / videos)}`;
+  } else {
+    hint.textContent = '—';
+  }
+}
+
+function saveEditor() {
+  const name = document.getElementById('in-editorName').value.trim();
+  const clientId = document.getElementById('in-editorProject').value || null;
+  const videos = parseInt(document.getElementById('in-editorVideos').value) || 0;
+  const price = parseFloat(document.getElementById('in-editorPrice').value) || 0;
+  const rate = videos > 0 ? price / videos : 0;
+  if (!name) return;
+  const m = activeMonth();
+  if (state.editingEditorId) {
+    const idx = m.editors.findIndex(e => e.id === state.editingEditorId);
+    if (idx >= 0) m.editors[idx] = { id: state.editingEditorId, name, clientId, videos, price, rate };
+  } else {
+    m.editors.push({ id: uid(), name, clientId, videos, price, rate });
+  }
+  save();
+  closeModal('modal-addEditor');
+  renderEditors();
+  renderMetrics();
+  renderChart();
+  renderPendingWork();
+}
+
+function openEditEditorModal(editorId) {
+  const m = activeMonth();
+  const e = m.editors.find(x => x.id === editorId);
+  if (!e) return;
+  state.editingEditorId = editorId;
+  document.getElementById('modal-editor-title').textContent = 'Editar Editor';
+  document.getElementById('in-editorName').value = e.name;
+  document.getElementById('in-editorVideos').value = e.videos || '';
+  document.getElementById('in-editorPrice').value = e.price || '';
+  populateEditorProjectOptions(e.clientId);
+  calcEditorRate();
+  openModal('modal-addEditor');
+}
+
+function deleteEditor(id) {
+  if (!confirm('Remover este editor?')) return;
+  const m = activeMonth();
+  m.editors = m.editors.filter(e => e.id !== id);
+  save();
+  renderEditors();
+  renderMetrics();
+  renderChart();
+  renderPendingWork();
+}
+
+function editorProjectName(editor) {
+  if (!editor.clientId) return null;
+  const m = activeMonth();
+  const c = m?.clients.find(x => x.id === editor.clientId);
+  return c ? c.name : null;
+}
+
+function openAddEditorPaymentModal() {
+  state.editingPaymentId = null;
+  document.getElementById('modal-payment-title').textContent = 'Registo de Pagamento a Editor';
+  const m = activeMonth();
+  const sel = document.getElementById('in-epEditor');
+  if (!m.editors || m.editors.length === 0) { alert('Adiciona um editor primeiro.'); return; }
+  sel.innerHTML = m.editors.map(e => {
+    const projectName = editorProjectName(e);
+    const label = projectName ? `${e.name} · ${projectName}` : e.name;
+    return `<option value="${e.id}">${label}</option>`;
+  }).join('');
+  document.getElementById('in-epDesc').value = '';
+  document.getElementById('in-epVideos').value = '';
+  document.getElementById('in-epAmount').value = '';
+  document.getElementById('in-epStatus').value = 'pendente';
+  document.getElementById('editor-payment-hint').textContent = '—';
+  openModal('modal-addEditorPayment');
+  autoFillPaymentFromEditor();
+}
+
+function openEditEditorPaymentModal(paymentId) {
+  const m = activeMonth();
+  const p = m.editorPayments.find(x => x.id === paymentId);
+  if (!p) return;
+  state.editingPaymentId = paymentId;
+  document.getElementById('modal-payment-title').textContent = 'Editar Pagamento a Editor';
+
+  const sel = document.getElementById('in-epEditor');
+  sel.innerHTML = m.editors.map(e => {
+    const projectName = editorProjectName(e);
+    const label = projectName ? `${e.name} · ${projectName}` : e.name;
+    return `<option value="${e.id}">${label}</option>`;
+  }).join('');
+  sel.value = p.editorId;
+
+  document.getElementById('in-epDesc').value = p.desc || '';
+  document.getElementById('in-epVideos').value = p.videos || '';
+  document.getElementById('in-epAmount').value = p.amount || '';
+  document.getElementById('in-epStatus').value = p.status || 'pendente';
+  document.getElementById('editor-payment-hint').textContent = 'A editar registo existente — os valores não são recalculados automaticamente.';
+  openModal('modal-addEditorPayment');
+}
+
+function autoFillPaymentFromEditor() {
+  const editorId = document.getElementById('in-epEditor').value;
+  const m = activeMonth();
+  const editor = m.editors.find(e => e.id === editorId);
+  if (!editor) return;
+
+  const projectName = editorProjectName(editor);
+  document.getElementById('in-epDesc').value = projectName || '';
+
+  const hint = document.getElementById('editor-payment-hint');
+  if (editor.clientId) {
+    const c = m.clients.find(x => x.id === editor.clientId);
+    if (c && c.type === 'edicao') {
+      // Auto-preenche com o número de vídeos ENTREGUES até agora nesse cliente
+      const delivered = c.deliveredVideos || 0;
+      document.getElementById('in-epVideos').value = delivered;
+      const amount = editor.rate > 0 ? (editor.rate * delivered) : 0;
+      document.getElementById('in-epAmount').value = amount.toFixed(2);
+      hint.textContent = `${delivered} vídeos entregues em "${c.name}" × ${fmt(editor.rate)}/vídeo`;
+    } else {
+      hint.textContent = '—';
+    }
+  } else {
+    hint.textContent = 'Este editor não tem projeto associado — preenche manualmente.';
+  }
+}
+
+function calcEditorPay() {
+  const editorId = document.getElementById('in-epEditor').value;
+  const m = activeMonth();
+  const editor = m.editors.find(e => e.id === editorId);
+  const videos = parseInt(document.getElementById('in-epVideos').value) || 0;
+  if (editor && editor.rate > 0 && videos > 0) {
+    document.getElementById('in-epAmount').value = (editor.rate * videos).toFixed(2);
+  }
+}
+
+function saveEditorPayment() {
+  const editorId = document.getElementById('in-epEditor').value;
+  const desc = document.getElementById('in-epDesc').value.trim();
+  const videos = parseInt(document.getElementById('in-epVideos').value) || 0;
+  const amount = parseFloat(document.getElementById('in-epAmount').value) || 0;
+  const status = document.getElementById('in-epStatus').value;
+  const m = activeMonth();
+  const editor = m.editors.find(e => e.id === editorId);
+  if (!editor) { alert('Seleciona um editor válido.'); return; }
+
+  if (state.editingPaymentId) {
+    const idx = m.editorPayments.findIndex(p => p.id === state.editingPaymentId);
+    if (idx >= 0) {
+      m.editorPayments[idx] = { id: state.editingPaymentId, editorId, editorName: editor.name, desc, videos, amount, status };
+    }
+  } else {
+    m.editorPayments.push({ id: uid(), editorId, editorName: editor.name, desc, videos, amount, status });
+  }
+  save();
+  closeModal('modal-addEditorPayment');
+  renderEditors();
+  renderMetrics();
+  renderChart();
+  renderPendingWork();
+}
+
+function deleteEditorPayment(id) {
+  if (!confirm('Remover registo?')) return;
+  const m = activeMonth();
+  m.editorPayments = m.editorPayments.filter(p => p.id !== id);
+  save();
+  renderEditors();
+  renderMetrics();
+  renderChart();
+  renderPendingWork();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  const m = activeMonth();
+  document.getElementById('topbarTitle').textContent = m ? m.label : '—';
+  document.getElementById('editorMonthLabel').textContent = m ? m.label : '—';
+  const sortSelect = document.getElementById('sortClientsSelect');
+  if (sortSelect) sortSelect.value = state.clientsSort || 'adicionado';
+  renderMonthList();
+  renderMetrics();
+  renderClientsTable();
+  renderEditors();
+  renderChart();
+  renderPendingWork();
+}
+
+function clientTotalPaid(c) {
+  // Total acumulado de sempre (inclui o que foi pago em meses anteriores, se for continuação)
+  return (c.baselinePaid || 0) + (c.paid || 0);
+}
+
+function expectedClientValue(c) {
+  const totalPaid = clientTotalPaid(c);
+  let expected = c.totalValue;
+  if (c.type === 'edicao' && c.totalVideos > 0) {
+    const packsCompleted = Math.floor(c.deliveredVideos / c.totalVideos);
+    expected = packsCompleted * c.totalValue;
+  }
+  // Cliente que terminou (estado Pago) sem fechar o pack, mas só conta como "encerrado a meio"
+  // se o valor pago bater certo com os vídeos entregues (sem dívida nem adiantamento)
+  if (c.status === 'pago' && c.type === 'edicao' && expected !== totalPaid && c.pricePerVideo > 0) {
+    const videosPaidFor = Math.round(totalPaid / c.pricePerVideo);
+    if (videosPaidFor === c.deliveredVideos) {
+      expected = totalPaid;
+    }
+  }
+  return expected;
+}
+
+function clientAmountOwedToYou(c) {
+  const totalPaid = clientTotalPaid(c);
+  // Valor que o cliente ainda te deve: só quando entregaste mais vídeos do que ele pagou
+  if (c.type === 'edicao' && c.pricePerVideo > 0) {
+    const videosPaidFor = Math.round(totalPaid / c.pricePerVideo);
+    const videosOwed = videosPaidFor - c.deliveredVideos; // negativo = cliente deve-te vídeos entregues
+    if (videosOwed < 0) {
+      return Math.abs(videosOwed) * c.pricePerVideo;
+    }
+    return 0;
+  }
+  // Gestão de Redes: usa o valor esperado vs pago normal
+  const expected = expectedClientValue(c);
+  return Math.max(0, expected - totalPaid);
+}
+
+function clientPaidThisMonth(c) {
+  // Quanto entrou de novo NESTE mês (não conta o histórico de meses anteriores)
+  return c.paid || 0;
+}
+
+function renderMetrics() {
+  const m = activeMonth();
+  if (!m) return;
+  const totalReceita = m.clients.reduce((s, c) => s + clientPaidThisMonth(c), 0);
+  const totalPago = totalReceita; // lucro líquido também deve refletir só o dinheiro novo deste mês
+  const totalExpected = m.clients.reduce((s, c) => s + expectedClientValue(c), 0);
+  const totalPendente = m.clients.reduce((s, c) => s + clientAmountOwedToYou(c), 0);
+  const totalDespesas = (m.editorPayments || []).filter(p => p.status === 'pago').reduce((s, p) => s + p.amount, 0);
+  const lucro = totalPago - totalDespesas;
+  const margem = totalPago > 0 ? Math.round(lucro / totalPago * 100) : 0;
+
+  animCount('m-receita', totalReceita, true);
+  animCount('m-despesas', totalDespesas, true);
+  animCount('m-lucro', lucro, true);
+  animCount('m-pendente', totalPendente, true);
+
+  const paidPayments = (m.editorPayments || []).filter(p => p.status === 'pago');
+  const pendingPayments = (m.editorPayments || []).filter(p => p.status !== 'pago');
+  document.getElementById('m-receita-sub').textContent = `${m.clients.length} contrato${m.clients.length !== 1 ? 's' : ''}`;
+  document.getElementById('m-despesas-sub').textContent = pendingPayments.length > 0
+    ? `${paidPayments.length} pago${paidPayments.length !== 1 ? 's' : ''} · ${pendingPayments.length} por pagar`
+    : `${paidPayments.length} registo${paidPayments.length !== 1 ? 's' : ''} pago${paidPayments.length !== 1 ? 's' : ''}`;
+  document.getElementById('m-lucro-sub').textContent = `margem ${margem}%`;
+  document.getElementById('m-pendente-sub').textContent = `vídeos entregues e ainda não pagos`;
+}
+
+function animCount(elId, target, isMoney) {
+  const el = document.getElementById(elId);
+  const start = 0;
+  const duration = 500;
+  const startTime = performance.now();
+  function step(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const val = start + (target - start) * ease;
+    el.textContent = isMoney ? fmt(val) : Math.round(val);
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = isMoney ? fmt(target) : target;
+  }
+  requestAnimationFrame(step);
+}
+
+function renderPendingWork() {
+  const m = activeMonth();
+  const section = document.getElementById('pendingWorkSection');
+  const listEl = document.getElementById('pendingWorkList');
+  if (!m) { section.style.display = 'none'; return; }
+
+  const pendingItems = m.clients
+    .filter(c => c.type === 'edicao' && c.pricePerVideo > 0)
+    .map(c => {
+      const totalPaid = clientTotalPaid(c);
+      const videosPaidFor = Math.round(totalPaid / c.pricePerVideo);
+      const videosOwed = videosPaidFor - (c.deliveredVideos || 0);
+      return { client: c, videosOwed };
+    })
+    .filter(({ videosOwed }) => videosOwed > 0);
+
+  if (pendingItems.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = '';
+  listEl.innerHTML = pendingItems.map(({ client: c, videosOwed }) => {
+    const value = videosOwed * c.pricePerVideo;
+    return `<div class="editor-row">
+      <div class="editor-avatar" style="color:var(--orange)">⏳</div>
+      <div class="editor-name">${c.name}<br><span style="color:var(--text-muted);font-weight:400;font-size:12px">${c.deliveredVideos || 0} vídeos entregues de ${Math.round(clientTotalPaid(c) / c.pricePerVideo)} já pagos</span></div>
+      <div style="color:var(--orange);font-weight:800;font-size:16px">${videosOwed} vídeo${videosOwed !== 1 ? 's' : ''} <span style="font-weight:400;font-size:12px;color:var(--text-muted)">(${fmt(value)})</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderClientsTable() {
+  const m = activeMonth();
+  const tbody = document.getElementById('clientsTable');
+  if (!m || m.clients.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">📋</div><p>Sem contratos. Adiciona o primeiro.</p></div></td></tr>';
+    return;
+  }
+  let filtered = state.currentFilter === 'todos' ? [...m.clients] : m.clients.filter(c => c.type === state.currentFilter);
+
+  if (state.clientsSort === 'estado') {
+    const statusOrder = { pago: 0, parcial: 1, pendente: 2 };
+    filtered.sort((a, b) => (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99));
+  }
+  // 'adicionado' mantém a ordem natural do array (ordem em que foram criados)
+  
+  tbody.innerHTML = filtered.map(c => {
+    let expectedValue = c.totalValue;
+    let subContractsLabel = '';
+    let remainderVideos = 0;
+
+    if (c.type === 'edicao' && c.totalVideos > 0) {
+      const packsCompleted = Math.floor(c.deliveredVideos / c.totalVideos);
+      remainderVideos = c.deliveredVideos % c.totalVideos;
+      expectedValue = packsCompleted * c.totalValue;
+      if (packsCompleted > 1) {
+        subContractsLabel = `<br><span style="color:var(--blue);font-size:11px;font-weight:700">${packsCompleted}x packs completos</span>`;
+      } else if (packsCompleted === 1 && remainderVideos > 0) {
+        subContractsLabel = `<br><span style="color:var(--text-muted);font-size:11px">1 pack completo + ${remainderVideos} em novo pack</span>`;
+      }
+    }
+
+    const totalPaid = clientTotalPaid(c);
+
+    // Se o estado é "Pago" mas o cliente não chegou a completar o pack acordado (ex: saiu a meio),
+    // só consideramos "contrato encerrado a meio" quando o valor pago bate certo com os vídeos
+    // entregues (sem vídeos em dívida nem adiantados). Se o pago não bate certo, é um adiantamento
+    // ou pagamento pendente, não um encerramento.
+    if (c.status === 'pago' && c.type === 'edicao' && expectedValue !== totalPaid && c.pricePerVideo > 0) {
+      const videosPaidFor = Math.round(totalPaid / c.pricePerVideo);
+      const matchesDelivered = videosPaidFor === c.deliveredVideos;
+      if (matchesDelivered) {
+        expectedValue = totalPaid;
+        subContractsLabel = `<br><span style="color:var(--text-muted);font-size:11px">contrato encerrado antes do pack completo</span>`;
+      }
+    }
+
+    const pendente = expectedValue - totalPaid;
+
+    // Vídeos em dívida ao cliente: quantos vídeos pagos ainda não foram entregues
+    let videosOwedLabel = '';
+    let pendenteCell = '';
+    if (c.type === 'edicao' && c.pricePerVideo > 0) {
+      const videosPaidFor = Math.round(totalPaid / c.pricePerVideo);
+      const videosOwed = videosPaidFor - c.deliveredVideos;
+      if (videosOwed > 0) {
+        const valueOwed = videosOwed * c.pricePerVideo;
+        pendenteCell = `<span style="color:var(--orange);font-weight:700">${videosOwed} vídeo${videosOwed !== 1 ? 's' : ''}</span><br><span style="color:var(--text-muted);font-size:11px">em dívida · ${fmt(valueOwed)}</span>`;
+      } else if (videosOwed < 0) {
+        const valueAdvanced = Math.abs(videosOwed) * c.pricePerVideo;
+        pendenteCell = `<span style="color:var(--blue);font-weight:700">${Math.abs(videosOwed)} vídeo${Math.abs(videosOwed) !== 1 ? 's' : ''}</span><br><span style="color:var(--text-muted);font-size:11px">adiantados · ${fmt(valueAdvanced)}</span>`;
+      } else {
+        pendenteCell = `<span style="color:var(--green);font-weight:700">€0</span><br><span style="color:var(--text-muted);font-size:11px">em dia</span>`;
+      }
+    } else {
+      pendenteCell = `<span class="${pendente > 0 ? 'pending-amount' : ''}" style="${pendente < 0 ? 'color:var(--blue);font-weight:700' : ''}">${fmt(pendente)}</span>`;
+    }
+
+    // Barra de progresso: o denominador cresce com cada pack completo (200/200, depois 250/250 no novo pack, etc)
+    let progressPct, progressCell, fillClass;
+    if (c.type === 'edicao' && c.totalVideos > 0) {
+      const packsCompletedForBar = Math.floor(c.deliveredVideos / c.totalVideos);
+      const remainder = c.deliveredVideos - (packsCompletedForBar * c.totalVideos);
+      // Se entregou exatamente um múltiplo do pack (remainder = 0 e já fez pelo menos 1 pack), mostra esse pack fechado em vez de reiniciar a 0
+      const isExactMultiple = remainder === 0 && packsCompletedForBar > 0;
+      const displayTarget = isExactMultiple
+        ? packsCompletedForBar * c.totalVideos
+        : (packsCompletedForBar + 1) * c.totalVideos;
+      const displayDelivered = c.deliveredVideos;
+      progressPct = pct(displayDelivered, displayTarget);
+      fillClass = progressPct >= 100 ? '' : progressPct >= 50 ? 'partial' : 'low';
+      progressCell = `<div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="progress-bar"><span class="progress-fill ${fillClass}" style="width:${progressPct}%"></span></span>
+          <span style="min-width:90px">${displayDelivered}/${displayTarget} vídeos</span>
+          <button class="btn-stepper" onclick="adjustDelivered('${c.id}', -1)" title="Remover vídeo entregue">−</button>
+          <button class="btn-stepper" onclick="adjustDelivered('${c.id}', 1)" title="Adicionar vídeo entregue">+</button>
+        </div>
+        ${(c.baselineVideos !== undefined && c.baselineVideos !== null) ? `<span style="color:var(--text-muted);font-size:11px">${c.baselineVideos} vídeos vinham do mês anterior</span>` : ''}
+      </div>`;
+    } else {
+      progressPct = pct(totalPaid, c.totalValue);
+      fillClass = progressPct >= 100 ? '' : progressPct >= 50 ? 'partial' : 'low';
+      progressCell = `<span class="progress-bar"><span class="progress-fill ${fillClass}" style="width:${progressPct}%"></span></span>${progressPct}%`;
+    }
+
+    const statusTag = c.status === 'pago' ? '<span class="tag tag-pago">Pago</span>'
+      : c.status === 'parcial' ? '<span class="tag tag-parcial">Parcial</span>'
+      : '<span class="tag tag-pendente">Pendente</span>';
+    const typeTag = c.type === 'edicao'
+      ? `<span class="tag tag-edicao">Edição</span>`
+      : `<span class="tag tag-gestao">Gestão RS</span>`;
+
+    // Deteta contratos que parecem completos (pack todo entregue + valor todo pago) mas o estado ainda não é "Pago"
+    let completenessAlert = '';
+    if (c.status !== 'pago') {
+      let looksComplete = false;
+      if (c.type === 'edicao' && c.totalVideos > 0) {
+        looksComplete = c.deliveredVideos >= c.totalVideos && totalPaid >= (c.totalVideos * c.pricePerVideo);
+      } else if (c.type === 'gestao') {
+        looksComplete = totalPaid >= c.totalValue;
+      }
+      if (looksComplete) {
+        completenessAlert = `<br><button class="btn btn-ghost btn-sm" style="margin-top:4px;color:var(--green);border-color:var(--green-dim)" onclick="markClientAsPago('${c.id}')" title="Vídeos entregues e valor pago batem certo">✓ Marcar como Pago</button>`;
+      }
+    }
+
+    const isContinuation = c.baselinePaid !== undefined && c.baselinePaid !== null;
+    const continuationBadge = isContinuation
+      ? `<br><span style="color:var(--blue);font-size:11px;font-weight:700">↻ continuação · pago este mês: ${fmt(c.paid)} · total acumulado: ${fmt(totalPaid)}</span>`
+      : '';
+
+    return `<tr>
+      <td><strong>${c.name}</strong>${continuationBadge}${c.notes ? `<br><span style="color:var(--text-muted);font-size:11px">${c.notes}</span>` : ''}</td>
+      <td>${typeTag}</td>
+      <td><strong>${fmt(expectedValue)}</strong>${c.type === 'edicao' && c.pricePerVideo ? `<br><span style="color:var(--text-muted);font-size:11px">${fmt(c.pricePerVideo)}/vídeo</span>` : ''}${subContractsLabel}</td>
+      <td>${progressCell}</td>
+      <td style="color:var(--green);font-weight:700">${fmt(totalPaid)}${isContinuation ? `<br><span style="color:var(--text-muted);font-size:11px">+${fmt(c.paid)} este mês</span>` : ''}</td>
+      <td>${pendenteCell}</td>
+      <td>${statusTag}${completenessAlert}</td>
+      <td><div class="action-btns">
+        <button class="btn btn-ghost btn-sm" onclick="openMoveClientModal('${c.id}')" title="Mover/continuar no próximo mês">→📅</button>
+        <button class="btn btn-ghost btn-sm" onclick="openAddClientModal('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderEditors() {
+  const listEl = document.getElementById('editoresList');
+  const m = activeMonth();
+  const editors = m?.editors || [];
+
+  if (editors.length === 0) {
+    listEl.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>Sem editores registados.</p></div>';
+  } else {
+    listEl.innerHTML = editors.map(e => {
+      const editorPayments = (m?.editorPayments||[]).filter(p => p.editorId === e.id);
+      const totalPaid = editorPayments.filter(p => p.status === 'pago').reduce((s, p) => s + p.amount, 0);
+      const totalPending = editorPayments.filter(p => p.status !== 'pago').reduce((s, p) => s + p.amount, 0);
+      const init = e.name.slice(0,1).toUpperCase();
+      const projectName = editorProjectName(e);
+      const packInfo = e.videos > 0
+        ? `${e.videos} vídeos = ${fmt(e.price)} <span style="color:var(--text-muted)">(${fmt(e.rate)}/vídeo)</span>`
+        : `<span style="color:var(--text-muted)">sem pack definido</span>`;
+      const amountDisplay = totalPending > 0
+        ? `<div class="editor-amount">${fmt(totalPaid)} pago</div><div style="color:var(--orange);font-size:11px;font-weight:700">${fmt(totalPending)} por pagar</div>`
+        : `<div class="editor-amount">${fmt(totalPaid)} pago</div>`;
+      return `<div class="editor-row">
+        <div class="editor-avatar">${init}</div>
+        <div class="editor-name">${e.name}${projectName ? ` <span style="color:var(--text-muted);font-weight:400">· ${projectName}</span>` : ' <span style="color:var(--text-muted);font-weight:400">· sem projeto</span>'}<br><span style="color:var(--text-dim);font-weight:400;font-size:12px">${packInfo}</span></div>
+        ${amountDisplay}
+        <button class="btn btn-ghost btn-sm" onclick="openEditEditorModal('${e.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEditor('${e.id}')">🗑</button>
+      </div>`;
+    }).join('');
+  }
+
+  const tbody = document.getElementById('editorPaymentsTable');
+  const payments = m?.editorPayments || [];
+  if (payments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">💸</div><p>Sem registos de pagamentos.</p></div></td></tr>';
+  } else {
+    tbody.innerHTML = payments.map(p => {
+      const statusTag = p.status === 'pago'
+        ? '<span class="tag tag-pago">Pago</span>'
+        : '<span class="tag tag-pendente">Por Pagar</span>';
+      return `<tr>
+        <td><strong>${p.editorName}</strong></td>
+        <td>${p.desc || '—'}</td>
+        <td>${p.videos || '—'}</td>
+        <td style="color:var(--red);font-weight:700">${fmt(p.amount)}</td>
+        <td>${statusTag}</td>
+        <td><div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="openEditEditorPaymentModal('${p.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEditorPayment('${p.id}')">🗑</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+let trendChart = null;
+
+function monthMetrics(m) {
+  const totalPago = m.clients.reduce((s, c) => s + clientPaidThisMonth(c), 0);
+  const totalReceita = totalPago;
+  const totalDespesas = (m.editorPayments || []).filter(p => p.status === 'pago').reduce((s, p) => s + p.amount, 0);
+  const lucro = totalPago - totalDespesas;
+  return { receita: totalReceita, recebido: totalPago, despesas: totalDespesas, lucro };
+}
+
+function setChartMetric(metric, btn) {
+  state.chartMetric = metric;
+  document.querySelectorAll('#view-dashboard .tabs')[0].querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart();
+  renderPendingWork();
+}
+
+function renderChart() {
+  const ctx = document.getElementById('trendChart');
+  if (!ctx) return;
+
+  // sort months chronologically by id (month_YYYY_MM)
+  const sorted = [...state.months].sort((a, b) => a.id.localeCompare(b.id));
+  const labels = sorted.map(m => m.label);
+  const data = sorted.map(m => monthMetrics(m)[state.chartMetric]);
+
+  const colorMap = {
+    receita: { line: '#00FF87', fill: 'rgba(0,255,135,0.12)' },
+    lucro:   { line: '#4D9FFF', fill: 'rgba(77,159,255,0.12)' },
+    despesas:{ line: '#FF4D6D', fill: 'rgba(255,77,109,0.12)' }
+  };
+  const c = colorMap[state.chartMetric];
+
+  if (trendChart) trendChart.destroy();
+
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: state.chartMetric,
+        data,
+        borderColor: c.line,
+        backgroundColor: c.fill,
+        borderWidth: 2.5,
+        pointBackgroundColor: c.line,
+        pointBorderColor: '#0A0A0F',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1A1A2E',
+          borderColor: '#2A2A3E',
+          borderWidth: 1,
+          titleColor: '#E8E8F0',
+          bodyColor: c.line,
+          titleFont: { family: 'Inter', weight: '700', size: 12 },
+          bodyFont: { family: 'Inter', weight: '800', size: 14 },
+          padding: 10,
+          displayColors: false,
+          callbacks: {
+            label: (ctx) => '€' + ctx.parsed.y.toLocaleString('pt-PT')
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#6B6B85', font: { family: 'Inter', size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: {
+            color: '#6B6B85',
+            font: { family: 'Inter', size: 11 },
+            callback: (val) => '€' + val.toLocaleString('pt-PT')
+          }
+        }
+      }
+    }
+  });
+}
+
+// ─── MODAL HELPERS ───────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ─── VIEW SWITCH ─────────────────────────────────────────────────────────────
+// ─── RESUMO GERAL (consolidado de todos os meses) ────────────────────────────
+let resumoFilter = 'todos';
+
+function consolidatedClients() {
+  // Junta clientes com o mesmo nome através de todos os meses.
+  // Como cada "continuação" já tem o histórico embutido via baselineVideos/baselinePaid,
+  // basta pegar a versão MAIS AVANÇADA (maior nº de vídeos entregues) de cada nome —
+  // essa versão já reflete o acumulado de todos os meses anteriores.
+  const byName = new Map();
+  const monthsByClient = new Map(); // nome -> Set de labels de mês onde apareceu
+
+  monthsSorted().forEach(m => {
+    m.clients.forEach(c => {
+      if (!monthsByClient.has(c.name)) monthsByClient.set(c.name, new Set());
+      monthsByClient.get(c.name).add(m.label);
+
+      const existing = byName.get(c.name);
+      if (!existing) {
+        byName.set(c.name, c);
+      } else {
+        // Mantém o que tiver mais vídeos entregues (= mais avançado no histórico)
+        const existingDelivered = existing.deliveredVideos || 0;
+        const candidateDelivered = c.deliveredVideos || 0;
+        if (candidateDelivered >= existingDelivered) {
+          byName.set(c.name, c);
+        }
+      }
+    });
+  });
+
+  return Array.from(byName.values()).map(c => ({
+    client: c,
+    monthsActive: Array.from(monthsByClient.get(c.name)).join(', ')
+  }));
+}
+
+function renderResumoGeral() {
+  const consolidated = consolidatedClients();
+
+  // Cards do topo: somam TODOS os meses, sem consolidar por cliente (cada mês conta o que entrou nesse mês)
+  let totalReceita = 0, totalDespesas = 0;
+  state.months.forEach(m => {
+    totalReceita += m.clients.reduce((s, c) => s + clientPaidThisMonth(c), 0);
+    totalDespesas += (m.editorPayments || []).filter(p => p.status === 'pago').reduce((s, p) => s + p.amount, 0);
+  });
+  const totalLucro = totalReceita - totalDespesas;
+  const margem = totalReceita > 0 ? Math.round(totalLucro / totalReceita * 100) : 0;
+
+  // Por Receber: usa os clientes consolidados (versão mais avançada de cada um)
+  const totalPendente = consolidated.reduce((s, { client }) => s + clientAmountOwedToYou(client), 0);
+
+  document.getElementById('rg-receita').textContent = fmt(totalReceita);
+  document.getElementById('rg-despesas').textContent = fmt(totalDespesas);
+  document.getElementById('rg-lucro').textContent = fmt(totalLucro);
+  document.getElementById('rg-pendente').textContent = fmt(totalPendente);
+
+  document.getElementById('rg-receita-sub').textContent = `${state.months.length} mês${state.months.length !== 1 ? 'es' : ''} · ${consolidated.length} cliente${consolidated.length !== 1 ? 's' : ''}`;
+  document.getElementById('rg-despesas-sub').textContent = `desde o início`;
+  document.getElementById('rg-lucro-sub').textContent = `margem ${margem}%`;
+  document.getElementById('rg-pendente-sub').textContent = `vídeos entregues e ainda não pagos`;
+
+  renderResumoClientsTable(consolidated);
+}
+
+function filterResumoClients(type, btn) {
+  resumoFilter = type;
+  const tabsContainer = document.querySelector('#view-resumo .tabs');
+  tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderResumoClientsTable(consolidatedClients());
+}
+
+function renderResumoClientsTable(consolidated) {
+  const tbody = document.getElementById('resumoClientsTable');
+  if (!consolidated || consolidated.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">🗂️</div><p>Sem contratos ainda.</p></div></td></tr>';
+    return;
+  }
+
+  const filtered = resumoFilter === 'todos' ? consolidated : consolidated.filter(({ client }) => client.type === resumoFilter);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">🗂️</div><p>Sem contratos deste tipo.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(({ client: c, monthsActive }) => {
+    const totalPaid = clientTotalPaid(c);
+    const expectedValue = expectedClientValue(c);
+    const typeTag = c.type === 'edicao'
+      ? `<span class="tag tag-edicao">Edição</span>`
+      : `<span class="tag tag-gestao">Gestão RS</span>`;
+
+    let videosCell = '—';
+    if (c.type === 'edicao' && c.totalVideos > 0) {
+      const packsCompleted = Math.floor(c.deliveredVideos / c.totalVideos);
+      const packsLabel = packsCompleted > 0 ? ` (${packsCompleted}x packs)` : '';
+      videosCell = `${c.deliveredVideos} vídeos${packsLabel}`;
+    } else if (c.type === 'edicao') {
+      videosCell = `${c.deliveredVideos || 0} vídeos`;
+    }
+
+    let pendenteCell = '';
+    if (c.type === 'edicao' && c.pricePerVideo > 0) {
+      const videosPaidFor = Math.round(totalPaid / c.pricePerVideo);
+      const videosOwed = videosPaidFor - c.deliveredVideos;
+      if (videosOwed > 0) {
+        pendenteCell = `<span style="color:var(--orange);font-weight:700">${videosOwed} vídeos</span><br><span style="color:var(--text-muted);font-size:11px">em dívida · ${fmt(videosOwed * c.pricePerVideo)}</span>`;
+      } else if (videosOwed < 0) {
+        pendenteCell = `<span style="color:var(--blue);font-weight:700">${Math.abs(videosOwed)} vídeos</span><br><span style="color:var(--text-muted);font-size:11px">adiantados · ${fmt(Math.abs(videosOwed) * c.pricePerVideo)}</span>`;
+      } else {
+        pendenteCell = `<span style="color:var(--green);font-weight:700">€0</span><br><span style="color:var(--text-muted);font-size:11px">em dia</span>`;
+      }
+    } else {
+      const pendente = Math.max(0, expectedValue - totalPaid);
+      pendenteCell = fmt(pendente);
+    }
+
+    return `<tr>
+      <td><strong>${c.name}</strong>${c.notes ? `<br><span style="color:var(--text-muted);font-size:11px">${c.notes}</span>` : ''}</td>
+      <td>${typeTag}</td>
+      <td><strong>${fmt(expectedValue)}</strong>${c.type === 'edicao' && c.pricePerVideo ? `<br><span style="color:var(--text-muted);font-size:11px">${fmt(c.pricePerVideo)}/vídeo</span>` : ''}</td>
+      <td>${videosCell}</td>
+      <td style="color:var(--green);font-weight:700">${fmt(totalPaid)}</td>
+      <td>${pendenteCell}</td>
+      <td><span style="color:var(--text-muted);font-size:12px">${monthsActive}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function switchView(view, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  btn.classList.add('active');
+  if (view === 'resumo') renderResumoGeral();
+}
+
+// ─── EXPORT / IMPORT ─────────────────────────────────────────────────────────
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'freelance_os_backup.json';
+  a.click();
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    let parsed;
+    try {
+      parsed = JSON.parse(e.target.result);
+    } catch (err) {
+      alert('Este ficheiro não é um JSON válido. Verifica se escolheste o ficheiro certo.');
+      event.target.value = '';
+      return;
+    }
+
+    // Validação básica de estrutura esperada
+    if (!parsed || !Array.isArray(parsed.months)) {
+      alert('Este ficheiro não parece ser um backup do FreelanceOS (falta a lista de meses). Importação cancelada.');
+      event.target.value = '';
+      return;
+    }
+
+    const monthCount = parsed.months.length;
+    const clientCount = parsed.months.reduce((s, m) => s + (m.clients?.length || 0), 0);
+    const editorCount = parsed.months.reduce((s, m) => s + (m.editors?.length || 0), 0);
+
+    const confirmed = confirm(
+      `Vais importar ${monthCount} mês${monthCount !== 1 ? 'es' : ''}, ${clientCount} contrato${clientCount !== 1 ? 's' : ''} e ${editorCount} editor${editorCount !== 1 ? 'es' : ''}.\n\n` +
+      `Isto substitui TODOS os dados atuais nesta página. Recomendamos exportar primeiro o estado atual como backup, caso ainda não o tenhas feito.\n\n` +
+      `Queres continuar?`
+    );
+
+    if (!confirmed) {
+      event.target.value = '';
+      return;
+    }
+
+    // Garante que todos os meses importados têm a estrutura mínima esperada
+    parsed.months.forEach(m => {
+      if (!Array.isArray(m.clients)) m.clients = [];
+      if (!Array.isArray(m.editors)) m.editors = [];
+      if (!Array.isArray(m.editorPayments)) m.editorPayments = [];
+    });
+
+    state = parsed;
+    if (!state.activeMonthId && state.months.length > 0) {
+      state.activeMonthId = state.months[state.months.length - 1].id;
+    }
+    if (!state.currentFilter) state.currentFilter = 'todos';
+    if (!state.clientsSort) state.clientsSort = 'adicionado';
+    if (!state.chartMetric) state.chartMetric = 'receita';
+
+    save();
+    render();
+    event.target.value = '';
+    alert('Dados importados com sucesso.');
+  };
+  reader.readAsText(file);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+load();
+render();
+</script>
+</body>
+</html>
